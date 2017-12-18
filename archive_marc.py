@@ -10,7 +10,7 @@ MARC21_NS = "http://www.loc.gov/MARC21/slim"
 NS = {'m': MARC21_NS}
 OUT_FORMAT = "marcxml"
 DATA_OUTPUT = True
-DEBUG = False 
+DEBUG = False
 UNICODE_CHECK = False
 
 class MarcXml(object):
@@ -48,7 +48,7 @@ class MarcXml(object):
 
     def controlfields(self):
         """Returns ALL controlfields, and data offset."""
-        offset = 1 # leader
+        offset = self.leader_pos() # leader
         return (self.data.xpath('m:controlfield', namespaces=NS), offset)
 
     def datafields(self):
@@ -78,8 +78,17 @@ class MarcXml(object):
         """Returns a list of <tag> controlfields."""
         return self.data.xpath('m:controlfield[@tag="%s"]' % tag, namespaces=NS)
 
+    def leader_pos(self):
+        """Return the offset of the leader. Normally 1, unless there are XML comments."""
+        leader = self.get_leader()
+        for i in range(0, len(self.data)):
+            if self.data[i] == leader:
+                return i+1
+
     def get_leader(self):
-        return self.data.xpath("m:leader", namespaces=NS)[0]
+        leader = self.data.xpath("m:leader", namespaces=NS)
+        if len(leader) == 1:
+            return leader[0]
 
     def transaction_update(self, datetime):
         """Updates the Date and Time of Latest Transaction (field 005).
@@ -119,7 +128,7 @@ class MarcXml(object):
 
 class IAMarcXml(MarcXml):
     ORG_CODE = "CaSfIA"
-    MODIFIED = "20171212160442.0"
+    MODIFIED = "20171215095542.0"
     def __init__(self, ocaid, xml, **kwargs):
         super(IAMarcXml, self).__init__(xml)
         self.ocaid = ocaid
@@ -319,7 +328,8 @@ if __name__ == '__main__':
         raise
 
     if DEBUG:
-        print "TITLE STATEMENT: %s" % etree.tostring(title_statement)
+        print record.get_leader()
+        print "TITLE STATEMENT: %s" % etree.tostring(record.get_datafield('245')[0])
 
     # ---- Write output
     # Use yaz-marcdump to convert modified XML to marc
