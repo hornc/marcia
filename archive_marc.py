@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import argparse
 import os
 import re
 import subprocess
@@ -8,8 +9,6 @@ from lxml import etree
 
 MARC21_NS = "http://www.loc.gov/MARC21/slim"
 NS = {'m': MARC21_NS}
-OUT_FORMAT = "marcxml"
-DATA_OUTPUT = True
 DEBUG = False
 UNICODE_CHECK = False
 
@@ -287,7 +286,15 @@ class IAMarcXml(MarcXml):
 
 if __name__ == '__main__':
 
-    filename = sys.argv[1] # marcxml file to process
+    parser = argparse.ArgumentParser(description='Convert MARC XML to Internet Archive online resource MARC.')
+    parser.add_argument('filename', help='MARC XML to process, <ociad>_marc.xml')
+    parser.add_argument('-o', '--output', default='marc', choices=['marc', 'marcxml'], help='Output format, marc or marcxml')
+    parser.add_argument('-n', '--suppress_output', action='store_true', help='Suppress output, only show errors and warnings')
+    #parser.add_argument('-d', '--debug', action='store_true', help='Debug output')
+    #parser.add_argument('-u', '--unicode', action='store_true', help='Perform unicode check on input MARC')
+
+    args = parser.parse_args()
+    filename = args.filename
     ocaid = re.search(r'([^//]+?)(_archive)?_marc.xml', filename).group(1)
 
     try:
@@ -333,7 +340,7 @@ if __name__ == '__main__':
 
     # ---- Write output
     # Use yaz-marcdump to convert modified XML to marc
-    if DATA_OUTPUT:
-        p = subprocess.Popen(["yaz-marcdump", "-imarcxml", "-o%s" % OUT_FORMAT, "/proc/self/fd/0"], stdin=subprocess.PIPE)
+    if not args.suppress_output:
+        p = subprocess.Popen(["yaz-marcdump", "-imarcxml", "-o%s" % args.output, "/proc/self/fd/0"], stdin=subprocess.PIPE)
         result = p.communicate(etree.tostring(record.data))
 
