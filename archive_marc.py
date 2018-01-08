@@ -162,7 +162,7 @@ class IAMarcXml(MarcXml):
 
         # ----- 035 System Control Number
         # Remove old OCLC System Control Number
-        # WARNING: Once OCLC#s are properly re-assigned, this needs to be removed!
+        # WARNING: Once OCLC's are properly re-assigned, this needs to be removed!
         self.clear_datafield('035')
 
         # ----- 040 - Cataloging Source, add IA as modifying agency
@@ -190,6 +190,11 @@ class IAMarcXml(MarcXml):
 
         # ----- 9xx Custom Fields
         self.strip_custom_fields()
+
+        # ----- Strip Obsolete Fields
+        obsolete_fields = ['004', '440']
+        for f in obsolete_fields:
+            self.clear_datafield(f)
 
         # Finally, check everything is OK:
         self.validate()
@@ -299,6 +304,7 @@ class IAMarcXml(MarcXml):
             count = len(self.get_controlfield(field))
             assert count == 1, "Expecting exactly one %s controlfield in %s, got %i\n" % (field, self.ocaid, count)
         assert self.get_controlfield('003')[0].text == self.ORG_CODE
+        assert self.get_controlfield('004') == []
         fixed_len = self.get_controlfield('008')[0]
         assert fixed_len.text[23] == 'o'
         assert len(fixed_len.text) == 40, "Expecting controlfield 008 to have 40 characters, has %i\n" % len(fixed_len.text)
@@ -308,6 +314,7 @@ class IAMarcXml(MarcXml):
 
         physical_description_count = len(self.get_datafield('300'))
         assert physical_description_count == 1, "Record %s should have one 300 Physical Description field. Has %i.\n" % (self.ocaid, physical_description_count)
+        assert self.get_datafield('440') == []
         # Unicode check
         if UNICODE_CHECK:
             assert(self.get_leader().text[9] == 'a') # 'a'=Unicode, ' '=MARC8
