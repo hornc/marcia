@@ -27,6 +27,9 @@ class MarcXml(object):
             sub.text = orgcode
             cataloging_sources.append(sub)
 
+    def comments(self):
+        return self.data.xpath('//comment()')
+
     def clear_controlfield(self, tag):
         """Completely clears all controlfields with a specific tag."""
         for e in self.get_controlfield(tag):
@@ -131,6 +134,10 @@ class IAMarcXml(MarcXml):
     def __init__(self, ocaid, xml, **kwargs):
         super(IAMarcXml, self).__init__(xml)
         self.ocaid = ocaid
+
+        # check for corrupt index
+        if self.has_corrupt_index():
+            raise Exception('Corrupt index found!')
 
         self.olid = kwargs.get('olid', None)
         self.volume = kwargs.get('volume', None)
@@ -239,7 +246,15 @@ class IAMarcXml(MarcXml):
             physical_description.remove(d)
 
         # add online resource count, if not already present
-        a = physical_description.xpath('m:subfield[@code="a"]', namespaces=NS)[0]
+        a = physical_description.xpath('m:subfield[@code="a"]', namespaces=NS)
+        if a == []: # a subfield does not exist, create it
+            sub = etree.Element('{%s}subfield' % MARC21_NS, {'code': 'a'})
+            sub.text = ""
+            physical_description.insert(0, sub)
+            a = physical_description.xpath('m:subfield[@code="a"]', namespaces=NS)
+
+        a = a[0]
+
         last = physical_description.xpath('m:subfield', namespaces=NS)[-1]
         if 'online resource' not in a.text:
             a.text = "1 online resource (%s" % a.text
@@ -253,6 +268,19 @@ class IAMarcXml(MarcXml):
         last.text = re.sub(r'col[\.,]', 'color', last.text)
         last.text = re.sub(r'ports\.', 'portraits', last.text)
         last.text = re.sub(r'fold\.', 'folded', last.text)
+        last.text = re.sub(r'diagrs\.', 'diagrams', last.text)
+
+    def has_corrupt_index(self):
+        for c in self.comments():
+            if DEBUG:
+                print "]%s[" % c.text
+            # Needs to catch both
+            #  Separator but not at end of field length=40
+            #  No separator at end of field length=40
+            # which indicate a problem with the 008 fixed length field
+            if 'at end of field length=40' in c.text:
+                return True
+        return False
 
     def set_online_resource(self):
         fixed_len = self.get_controlfield('008')[0]
