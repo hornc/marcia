@@ -130,7 +130,7 @@ class MarcXml(object):
 
 class IAMarcXml(MarcXml):
     ORG_CODE = "CaSfIA"
-    MODIFIED = "20171215095542.0"
+    MODIFIED = "20180109111542.0"
     def __init__(self, ocaid, xml, **kwargs):
         super(IAMarcXml, self).__init__(xml)
         self.ocaid = ocaid
@@ -192,7 +192,8 @@ class IAMarcXml(MarcXml):
         self.strip_custom_fields()
 
         # ----- Strip Obsolete Fields
-        obsolete_fields = ['004', '440']
+        self.clear_controlfield('004')
+        obsolete_fields = ['011', '039', '440']
         for f in obsolete_fields:
             self.clear_datafield(f)
 
@@ -335,7 +336,7 @@ if __name__ == '__main__':
     try:
         doc = etree.parse(filename)
     except IOError as e:
-        raise Exception, "Unable to open MARC XML%s\n" % filename
+        raise Exception, "Unable to open MARC XML: %s\n" % filename
 
     # Look for IA metadata to populate openlibrary url and volume number
     metadata_filename = os.path.join(os.path.dirname(filename), "%s_meta.xml" % (ocaid))
