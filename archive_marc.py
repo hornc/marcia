@@ -234,7 +234,7 @@ class IAMarcXml(MarcXml):
 
         # ----- Strip Local or Obsolete Fields
         self.clear_controlfield('004')
-        strip_fields = ['011', '019', '029', '037', '039', '044', '051', '079', '440']
+        strip_fields = ['011', '019', '029', '037', '039', '044', '049', '051', '059', '069', '079', '089', '440']
         for f in strip_fields:
             self.clear_datafield(f)
 
@@ -334,8 +334,9 @@ class IAMarcXml(MarcXml):
         fixed_len.text = fixed_len.text[:23] + 'o' + fixed_len.text[24:]
 
     def strip_custom_fields(self):
-        """Removes all 9xx datafields."""
+        """Removes all 9xx and 09X datafields."""
         remove = self.data.xpath('m:datafield[starts-with(@tag,"9")]', namespaces=NS)
+        remove += self.data.xpath('m:datafield[starts-with(@tag,"09")]', namespaces=NS)
         for r in remove:
             self.data.remove(r)
 
