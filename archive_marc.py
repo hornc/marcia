@@ -197,6 +197,16 @@ class IAMarcXml(MarcXml):
         # ----- 040 - Cataloging Source, add IA as modifying agency
         self.add_modifying_agency(self.ORG_CODE)
 
+        # ----- 050 - Library of Congress Call Number
+        # ----- 082 - Dewey Decimal Classification Number
+        # Change Second Indicator - Source of call number/Source of classification number
+        #  from '0 - Assigned by LC' to '4 - Assigned by agency other than LC'
+        lccns = self.get_datafield('050')
+        deweys = self.get_datafield('082')
+        for item in lccns + deweys:
+            if item.get('ind2') == '0':
+                item.set('ind2', '4')
+
         # ----- 245 Title Statement 
         # Delete the 245 subfield h.  Use of $h [electronic resource] is old coding and is no longer used.
         self.clear_subfield('245', 'h')
