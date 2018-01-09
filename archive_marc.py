@@ -96,6 +96,11 @@ class MarcXml(object):
         if len(leader) == 1:
             return leader[0]
 
+    def set_leader(self, pos, char):
+        """Set the Leader character at <pos> to <char>."""
+        leader = self.get_leader()
+        leader.text = leader.text[:pos] + char + leader.text[pos+1:]
+
     def transaction_update(self, datetime):
         """Updates the Date and Time of Latest Transaction (field 005).
            datetime format = YYYYMMDDhhmmss.0
@@ -146,10 +151,17 @@ class IAMarcXml(MarcXml):
         self.olid = kwargs.get('olid', None)
         self.volume = kwargs.get('volume', None)
 
+        originally_ebook = self.is_online_resource()
+
+        # ----- Leader
+        # Fix invalid characters in pos 18, Descriptive cataloging form
+        leader = self.get_leader()
+        if leader.text[18] == '1':
+            replacement = 'i' # i - ISBD punctuation included
+            self.set_leader(18, replacement)
+
         self.set_controlfield('001', ocaid)
         self.set_controlfield('003', self.ORG_CODE)
-
-        originally_ebook = self.is_online_resource()
 
         # ----- 005 Date and Time of Latest Transaction
         self.transaction_update(self.MODIFIED)
