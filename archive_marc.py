@@ -59,6 +59,10 @@ class MarcXml(object):
         offset = len(controlfields[0]) + controlfields[1] 
         return (self.data.xpath('m:datafield', namespaces=NS), offset)
 
+    def is_online_resource(self):
+        """Returns True if record is an online resource."""
+        return self.get_controlfield('008')[0].text[23] == 'o'
+
     def insert(self, field, fields):
         """Inserts a field (control or data) in tag order."""
         field_offset = fields[1]
@@ -101,7 +105,7 @@ class MarcXml(object):
         return datetime
 
     def set_controlfield(self, tag, value):
-        """Sets (overwrite if alreading exists) a MARC XML controlfield.
+        """Sets (overwrite if already exists) a MARC XML controlfield.
            usage:
                set_controlfield('006', 'abcd')
         """
@@ -145,6 +149,8 @@ class IAMarcXml(MarcXml):
         self.set_controlfield('001', ocaid)
         self.set_controlfield('003', self.ORG_CODE)
 
+        originally_ebook = self.is_online_resource()
+
         # ----- 005 Date and Time of Latest Transaction
         self.transaction_update(self.MODIFIED)
 
@@ -159,6 +165,17 @@ class IAMarcXml(MarcXml):
         # ----- 008 Fixed Length Control Field
         # Critical: Set resource type to Online Resource
         self.set_online_resource()
+
+        # ----- 010 Library of Congress Control Number
+        # ----- 020 ISBN
+        # Convert subfield 'a' > 'z' if not originally an e-book
+        if not originally_ebook:
+            lccns = self.get_datafield('010')
+            isbns = self.get_datafield('020')
+            for item in lccns + isbns:
+                original_id = item.xpath('m:subfield[@code="a"]', namespaces=NS)
+                for original in original_id:
+                    original.set('code', 'z')
 
         # ----- 035 System Control Number
         # Remove old OCLC System Control Number
