@@ -225,6 +225,8 @@ class IAMarcXml(MarcXml):
                 raise Exception, "Problem with 300 Physical Description in %s. Corrupt MARC?\n%s" % (ocaid, etree.tostring(physical_description[0]))
 
         # ----- 856, Electronic Location and Access
+        if originally_ebook:
+            self.clear_datafield('856')
         self.fix_locations()
 
         # ----- 9xx Custom Fields
