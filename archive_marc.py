@@ -32,16 +32,9 @@ class MarcXml(object):
 
     def convert_440(self):
         """Perform conversion of formerly valid 440 - Series Statement/Added Entry-Title
-           to current fields, 490 / 830.
+           to current fields, 490 + 830.
            see http://www.loc.gov/marc/bibliographic/bd440.html : "CONVERSION TO CURRENT FIELDS".
         """
-
-        def is_830(datafield):
-            """Returns True if the 440 datafield should be converted to an 830,
-               i.e. it contains subfields other than ['a', 'n', 'p', 'v', 'x', '6', '8']
-            """
-            #TODO: make the check.
-            pass
 
         def concatenate_subfields(field, subfields):
             """Concatenates the text of <subfields> into one string."""
@@ -53,21 +46,18 @@ class MarcXml(object):
             return output
 
         statements = self.get_datafield('440')
+
         for statement in statements:
-            if is_830(statement):
-               assert not self.get_datafield('830')
-            else:
-                # Convert to 490
-                assert not self.get_datafield('490')
-                a = concatenate_subfields(statement, ['a', 'n', 'p'])
-                data = {'a': a}
-                for s in ['v', 'x', '6', '8']:
-                    subfield = statement.xpath('m:subfield[@code="%s"]' % s, namespaces=NS)
-                    if subfield:
-                        data[s] = subfield[0].text
-                self.set_datafield('490', ind1='1', ind2=' ', subfields=data)
-            # Remove original 440 when done
-            self.clear_datafield('440')
+            # Create new 490 from 440
+            a = concatenate_subfields(statement, ['a', 'n', 'p'])
+            data = {'a': a}
+            for s in ['v', 'x', '6', '8']:
+                subfield = statement.xpath('m:subfield[@code="%s"]' % s, namespaces=NS)
+                if subfield:
+                    data[s] = subfield[0].text
+            self.set_datafield('490', ind1='1', ind2=' ', subfields=data)
+            # convert original 440 to 830
+            statement.set('tag', '830')
 
     def clear_controlfield(self, tag):
         """Completely clears all controlfields with a specific tag."""
@@ -263,7 +253,7 @@ class IAMarcXml(MarcXml):
             except IndexError as e:
                 raise Exception, "Problem with 300 Physical Description in %s. Corrupt MARC?\n%s" % (ocaid, etree.tostring(physical_description[0]))
 
-        # ----- 440, convert to 490 or 830
+        # ----- 440, Series Statement/Added Entry-Title, convert to 490, Series Statement + 830, Series Added Entry-Uniform Title
         # see http://www.loc.gov/marc/bibliographic/bd440.html : "CONVERSION TO CURRENT FIELDS"
         self.convert_440()
 
