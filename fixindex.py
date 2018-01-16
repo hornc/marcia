@@ -30,14 +30,6 @@ def step_through_and_fix(index, data):
         while data[calculated_offset + int(tag[1])] != separator:
             tag[1] = "%04d" % (int(tag[1]) + 1)
 
-        if DEBUG:
-            print "Tag: %s" % tag[0]
-            print "Len: %s" % tag[1]
-            print "Offset: %i" % int(tag[2])
-            print "Offset + len: %i" % (int(tag[1]) + int(tag[2]))
-            print data[int(tag[2])]
-            print "%s == %i" % (tag[2], calculated_offset)
-
         calculated_offset += int(tag[1])
     return index
 
@@ -57,26 +49,16 @@ def fix_index(f):
     field_len     = leader[20]
     start_pos_len = leader[21]
 
-    if DEBUG:
-        print leader
-        print length
-        print field_len
-        print start_pos_len
-
     index = []
     while True:
         tag = f.read(3)
         if tag[0] == chr(0x1e):
-            if DEBUG:
-                print "END OF INDEX."
             break
         tag_len = f.read(4)
         offset  = f.read(5)
         index.append([tag, tag_len, offset])
 
-        if DEBUG: 
-            print "%s: len %s, offset %s" % (tag, tag_len, offset)
-    f.seek(-3, 1) # back to end of index, at the 0x1E byte
+    f.seek(-3, 1)   # back to end of index, at the 0x1E byte
     data = f.read() # read rest of file (data section)
     if DEBUG:
         print "ORIGINAL INDEX: %s" % index
