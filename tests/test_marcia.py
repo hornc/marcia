@@ -3,7 +3,7 @@ from lxml import etree
 
 def marc():
    """Generates a test MARC XML.
-      MARC-IA requires at least one control field and one datafield to function.
+      MARC-IA requires at least one controlfield and one datafield to function.
    """
    data = '''<record xmlns="http://www.loc.gov/MARC21/slim">
      <leader>00971cam a2200289 a 4500</leader>
