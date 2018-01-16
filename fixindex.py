@@ -19,10 +19,6 @@ def step_through_and_fix(index, data):
     separator = '\x1e'
     calculated_offset = 0
     for i,tag in enumerate(index):
-        # Correct fixed len field 008
-        if tag[0] == '008' and int(tag[1]) != 41:
-            tag[1] = '0041'
-
         # If current offset not correct, set it to calculated offset.
         if data[int(tag[2])] != separator:
             tag[2] = "%05d" % calculated_offset
