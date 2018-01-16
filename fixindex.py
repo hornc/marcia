@@ -6,14 +6,6 @@ import sys
 
 DEBUG = False
 
-def add_one_to_len(index):
-    """Adjust index Array by adding one.
-       Overly simple off-by-one fix, but works in most cases."""
-    for i,tag in enumerate(index):
-        tag[1] = "%04d" % (int(tag[1]) + 1)
-        tag[2] = "%05d" % (int(tag[2]) + i)
-    return index
-
 def step_through_and_fix(index, data):
     """Check the index represents the data, and fix if not."""
     separator = '\x1e'
