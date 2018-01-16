@@ -319,7 +319,7 @@ class IAMarcXml(MarcXml):
     def fix_physical_description(self, physical_description):
         """Removes physical dimensions from electronic resources.
            Adds '1 online resource' to 300$a.
-           Expands some abbreviations in line with current catalogin practice."""
+           Expands some abbreviations in line with current cataloging practice."""
         # remove physical dimensions
         dimensions = physical_description.xpath('m:subfield[@code="c"]', namespaces=NS)
         for d in dimensions:
