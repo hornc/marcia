@@ -20,7 +20,7 @@ fi
 # Unicode conversion errors:
 
 # regex to catch common signs of MARC8 conversion issues
-bad_unicode="Ã{4}|â[eE]|á[aA]"
+bad_unicode="Ã[0-9]{4}|â[eE]|á[aA]"
 
 egrep --color $bad_unicode *_marc.xml
 
