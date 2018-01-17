@@ -11,12 +11,10 @@ def step_through_and_fix(index, data):
     separator = '\x1e'
     calculated_offset = 0
     for i,tag in enumerate(index):
-        # If current offset not correct, set it to calculated offset.
-        if data[int(tag[2])] != separator:
-            tag[2] = "%05d" % calculated_offset
+        # Set current offset to calculated offset.
+        tag[2] = "%05d" % calculated_offset
 
         assert data[calculated_offset] == separator
-        assert int(tag[2]) == calculated_offset
 
         # If offset + len does not end on a separator, incr. len by one until it is found
         while data[calculated_offset + int(tag[1])] != separator:
