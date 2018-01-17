@@ -11,6 +11,7 @@ MARC21_NS = "http://www.loc.gov/MARC21/slim"
 NS = {'m': MARC21_NS}
 DEBUG = False
 UNICODE_CHECK = False
+CATALOG_LANG_CHECK = False
 
 class MarcXml(object):
     def __init__(self, xml):
@@ -384,6 +385,11 @@ class IAMarcXml(MarcXml):
         fixed_len = self.get_controlfield('008')[0]
         assert fixed_len.text[23] == 'o'
         assert len(fixed_len.text) == 40, "Expecting controlfield 008 to have 40 characters, has %i\n" % len(fixed_len.text)
+
+        if CATALOG_LANG_CHECK:
+            for field in self.get_datafield('040'):
+                for language in field.xpath('m:subfield[@code="b"]', namespaces=NS):
+                    assert language.text == 'eng', "Catloging language: %s" % language.text
 
         title_statement = self.get_datafield('245')[0]
         assert not title_statement.xpath('m:subfield[@code="h"]', namespaces=NS)
