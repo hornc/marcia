@@ -394,8 +394,6 @@ class IAMarcXml(MarcXml):
         title_statement = self.get_datafield('245')[0]
         assert not title_statement.xpath('m:subfield[@code="h"]', namespaces=NS)
 
-        physical_description_count = len(self.get_datafield('300'))
-        assert physical_description_count == 1, "Record %s should have one 300 Physical Description field. Has %i.\n" % (self.ocaid, physical_description_count)
         assert self.get_datafield('440') == []
         # Unicode check
         if UNICODE_CHECK:
