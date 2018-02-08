@@ -340,7 +340,7 @@ class IAMarcXml(MarcXml):
         if 'online resource' not in a.text:
             a.text = "1 online resource (%s" % a.text
             # add closing parenthesis to last subfield
-            last.text = re.sub(r'[ ;]*$', '', last.text) + ')'
+            last.text = re.sub(r'[ :;]*$', '', last.text) + ')'
 
         # expand various abbreviations
         a.text = re.sub(r'p\.', 'pages', a.text)
