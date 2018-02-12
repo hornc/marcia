@@ -305,8 +305,8 @@ class IAMarcXml(MarcXml):
             subfields = {'u': "https://archive.org/details/%s" % self.ocaid,
                          'z': IA_TEXT}
             #Add $3 Materials Specified, e.g. cu31924088466184
-            if self.volume:
-                subfields['3'] = "Volume %s" % self.volume
+            #if self.volume:
+            #    subfields['3'] = "Volume %s" % self.volume
             self.add_data('856', ind1='4', ind2='0',
                           subfields = subfields)
         if ol_location is not None:
@@ -417,7 +417,7 @@ if __name__ == '__main__':
     except IOError as e:
         raise Exception, "Unable to open MARC XML: %s\n" % filename
 
-    # Look for IA metadata to populate openlibrary url and volume number
+    # Look for IA metadata to populate openlibrary url
     metadata_filename = os.path.join(os.path.dirname(filename), "%s_meta.xml" % (ocaid))
     meta = {}
     try:
@@ -428,8 +428,8 @@ if __name__ == '__main__':
                 print "DEBUG old_olid: %s" % meta['old_olid']
         if metadata.xpath("openlibrary_edition") != []:
             meta['olid'] = metadata.xpath("openlibrary_edition")[0].text
-        if metadata.xpath("volume") != []:
-            meta['volume'] = metadata.xpath("volume")[0].text
+        #if metadata.xpath("volume") != []:
+        #    meta['volume'] = metadata.xpath("volume")[0].text
     except IOError as e:
         #TODO: Metadata should be optional? Use it if it is there, still produce a good MARC if not. Log a warning just in case?
         #print "METADATA %s NOT FOUND" % metadata_filename
