@@ -1,6 +1,9 @@
 import marcia as m
 from lxml import etree
 
+MARC21_NS = "http://www.loc.gov/MARC21/slim"
+NS = {'m': MARC21_NS}
+
 def marc(content=''):
    """Generates a test MARC XML.
       MARC-IA requires at least one controlfield and one datafield to function.
@@ -40,3 +43,14 @@ def test_catalog_language_default():
     root = etree.fromstring(data)
     ia_marc = m.IAMarcXml("catalog_lang", root)
     assert ia_marc.catalog_language() == 'eng'
+
+def test_publisher_from_meta():
+    metaxml = {"publisher": "DK Pub.",
+              "city": "New York",
+              "date": "1996"}
+    data = marc()
+    root = etree.fromstring(data)
+    iamarc = m.IAMarcXml('test', root, **metaxml)
+    assert iamarc.get_datafield('260')[0].xpath('m:subfield[@code="a"]', namespaces=NS)[0].text == 'New York :'
+    assert iamarc.get_datafield('260')[0].xpath('m:subfield[@code="b"]', namespaces=NS)[0].text == 'DK Pub. ;'
+    assert iamarc.get_datafield('260')[0].xpath('m:subfield[@code="c"]', namespaces=NS)[0].text == '1996.'

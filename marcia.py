@@ -11,7 +11,6 @@ MARC21_NS = "http://www.loc.gov/MARC21/slim"
 NS = {'m': MARC21_NS}
 DEBUG = False
 UNICODE_CHECK = False
-CATALOG_LANG_CHECK = False
 
 class MarcXml(object):
     def __init__(self, xml):
@@ -184,8 +183,11 @@ class IAMarcXml(MarcXml):
         if self.has_corrupt_index():
             raise Exception('Corrupt index found!')
 
-        self.olid = kwargs.get('olid', None)
-        self.volume = kwargs.get('volume', None)
+        self.olid      = kwargs.get('olid', None)
+        self.volume    = kwargs.get('volume', None)
+        self.city      = kwargs.get('city', None)
+        self.publisher = kwargs.get('publisher', None)
+        self.date      = kwargs.get('date', None)
 
         originally_ebook = self.is_online_resource()
 
@@ -246,6 +248,18 @@ class IAMarcXml(MarcXml):
         # ----- 245 Title Statement 
         # Delete the 245 subfield h.  Use of $h [electronic resource] is old coding and is no longer used.
         self.clear_subfield('245', 'h')
+
+        # ----- 260 / 264 "Publisher details" if not present, create 260 from metadata ------
+        if self.data.xpath('m:datafield[@tag="260" or @tag="264"]', namespaces=NS) == []:
+            subfields = {}
+            if self.city:
+                subfields['a'] = self.city + (' :' if self.publisher else ' ,')
+            if self.publisher:
+                subfields['b'] = self.publisher + ' ;'
+            if self.date:
+                subfields['c'] = self.date + '.'
+            if subfields != {}:
+                self.set_datafield('260', subfields=subfields);
 
         # ----- 300 Physical Characteristics
         # Critical: Add "1 online resource" at the beginning of every 300 field in subfield a.
@@ -363,7 +377,6 @@ class IAMarcXml(MarcXml):
             text = re.sub(r'diagrs\.', 'diagrams', text)
         return text
 
-
     def has_corrupt_index(self):
         for c in self.comments():
             if DEBUG:
@@ -399,10 +412,7 @@ class IAMarcXml(MarcXml):
         assert fixed_len.text[23] == 'o'
         assert len(fixed_len.text) == 40, "Expecting controlfield 008 to have 40 characters, has %i\n" % len(fixed_len.text)
 
-        if CATALOG_LANG_CHECK:
-            for field in self.get_datafield('040'):
-                for language in field.xpath('m:subfield[@code="b"]', namespaces=NS):
-                    assert language.text == 'eng', "Catloging language: %s" % language.text
+        #assert self.data.xpath('m:datafield[@tag="260" or @tag="264"]', namespaces=NS) != [], "Records needs to have publisher data to avoid being flagged as 'sparse'"
 
         title_statement = self.get_datafield('245')[0]
         assert not title_statement.xpath('m:subfield[@code="h"]', namespaces=NS)
@@ -441,8 +451,10 @@ if __name__ == '__main__':
                 print "DEBUG old_olid: %s" % meta['old_olid']
         if metadata.xpath("openlibrary_edition") != []:
             meta['olid'] = metadata.xpath("openlibrary_edition")[0].text
-        #if metadata.xpath("volume") != []:
-        #    meta['volume'] = metadata.xpath("volume")[0].text
+        fields = ['city', 'publisher', 'date', 'volume']
+        for f in fields:
+            if metadata.xpath(f) != []:
+                meta[f] = metadata.xpath(f)[0].text
     except IOError as e:
         #TODO: Metadata should be optional? Use it if it is there, still produce a good MARC if not. Log a warning just in case?
         #print "METADATA %s NOT FOUND" % metadata_filename
