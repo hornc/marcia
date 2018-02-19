@@ -28,6 +28,12 @@ class MarcXml(object):
             sub.text = orgcode
             cataloging_sources.append(sub)
 
+    def catalog_language(self):
+        lang = self.data.xpath('m:datafield[@tag="040"]/m:subfield[@code="b"]', namespaces=NS)
+        if lang != []:
+            return lang[0].text.lower()
+        return 'eng'
+
     def comments(self):
         return self.data.xpath('//comment()')
 
@@ -243,7 +249,7 @@ class IAMarcXml(MarcXml):
 
         # ----- 300 Physical Characteristics
         # Critical: Add "1 online resource" at the beginning of every 300 field in subfield a.
-        # TODO: check parenthesis use, add test cases, check abbreviations(?)
+        # TODO: check parenthesis use, add test cases, check abbreviations
         physical_description = self.get_datafield('300')
 
         if len(physical_description) == 0:
@@ -343,13 +349,20 @@ class IAMarcXml(MarcXml):
             last.text = re.sub(r'[ :;]*$', '', last.text) + ')'
 
         # expand various abbreviations
-        a.text = re.sub(r'p\.', 'pages', a.text)
-        a.text = re.sub(r'([0-9]+)page', r'\1 page', a.text)
-        last.text = re.sub(r'ill\.|illus\.', 'illustrations', last.text)
-        last.text = re.sub(r'col[\.,]', 'color', last.text)
-        last.text = re.sub(r'ports\.', 'portraits', last.text)
-        last.text = re.sub(r'fold\.', 'folded', last.text)
-        last.text = re.sub(r'diagrs\.', 'diagrams', last.text)
+        if self.catalog_language() == 'eng':
+            a.text = re.sub(r'p\.', 'pages', a.text)
+            a.text = re.sub(r'([0-9]+)page', r'\1 page', a.text)
+        last.text = self.expand_abbreviations(last.text, self.catalog_language())
+
+    def expand_abbreviations(self, text, language):
+        if language == 'eng':
+            text = re.sub(r'ill\.|illus\.', 'illustrations', text)
+            text = re.sub(r'col[\.,]', 'color', text)
+            text = re.sub(r'ports\.', 'portraits', text)
+            text = re.sub(r'fold\.', 'folded', text)
+            text = re.sub(r'diagrs\.', 'diagrams', text)
+        return text
+
 
     def has_corrupt_index(self):
         for c in self.comments():
