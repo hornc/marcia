@@ -173,8 +173,8 @@ class MarcXml(object):
         self.insert(field, self.datafields())
 
 class IAMarcXml(MarcXml):
-    ORG_CODE = "CaSfIA"
-    MODIFIED = "20180109111542.0"
+    ORG_CODE = 'CaSfIA'
+    MODIFIED = '20180220154542.0'
     def __init__(self, ocaid, xml, **kwargs):
         super(IAMarcXml, self).__init__(xml)
         self.ocaid = ocaid
@@ -205,11 +205,11 @@ class IAMarcXml(MarcXml):
         self.transaction_update(self.MODIFIED)
 
         # ----- 006 Fixed-Length Data Elements-Additional Material Characteristics 
-        material_characteristics = "m     o  d"
+        material_characteristics = 'm     o  d'
         self.set_controlfield('006', material_characteristics)
 
         # ----- 007 - Physical Description Fixed Field-General Information
-        electronic_resource = "cr||||||||||||"
+        electronic_resource = 'cr||||||||||||'
         self.set_controlfield('007', electronic_resource)
 
         # ----- 008 Fixed Length Control Field
