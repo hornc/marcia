@@ -227,6 +227,14 @@ class IAMarcXml(MarcXml):
             if date2 == '    ':
                 # 's', Single known date/probable date
                 correction = 's'
+            elif int(date2) > int(date1):
+                pub_date = self.data.xpath('m:datafield[@tag="260"]/m:subfield[@code="c"]', namespaces=NS)
+                if pub_date and '[' in pub_date[0].text:
+                    # questionable dates
+                    correction = 'q'
+                else:
+                    # no attempt
+                    correction = ' '
             else:
                 # 't', Publication date and copyright date
                 assert date2 != '9999',  'Perhaps item is a real serial?'
