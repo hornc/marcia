@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse
+import collections
 import os
 import re
 import subprocess
@@ -268,7 +269,7 @@ class IAMarcXml(MarcXml):
 
         # ----- 260 / 264 "Publisher details" if not present, create 260 from metadata ------
         if self.data.xpath('m:datafield[@tag="260" or @tag="264"]', namespaces=NS) == []:
-            subfields = {}
+            subfields = collections.OrderedDict()
             if self.city:
                 subfields['a'] = self.city + (' :' if self.publisher else ' ,')
             if self.publisher:
