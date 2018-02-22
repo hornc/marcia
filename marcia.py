@@ -97,7 +97,8 @@ class MarcXml(object):
 
     def is_online_resource(self):
         """Returns True if record is an online resource."""
-        return self.get_controlfield('008')[0].text[23] == 'o'
+        field = self.get_controlfield('008')
+        return field and field[0].text[23] == 'o'
 
     def insert(self, field, fields):
         """Inserts a field (control or data) in tag order."""
@@ -376,12 +377,13 @@ class IAMarcXml(MarcXml):
         a = physical_description.xpath('m:subfield[@code="a"]', namespaces=NS)
         if a == []: # a subfield does not exist, create it
             sub = etree.Element('{%s}subfield' % MARC21_NS, {'code': 'a'})
-            sub.text = ""
+            sub.text = ''
             physical_description.insert(0, sub)
             a = physical_description.xpath('m:subfield[@code="a"]', namespaces=NS)
 
         a = a[0]
-
+        if not a.text: # rare case where empty subfield exists
+            a.text = ''
         last = physical_description.xpath('m:subfield', namespaces=NS)[-1]
         if 'online resource' not in a.text:
             a.text = "1 online resource (%s" % a.text
@@ -416,8 +418,9 @@ class IAMarcXml(MarcXml):
         return False
 
     def set_online_resource(self):
-        fixed_len = self.get_controlfield('008')[0]
-        fixed_len.text = fixed_len.text[:23] + 'o' + fixed_len.text[24:]
+        fixed_len = self.get_controlfield('008')
+        if fixed_len:
+            fixed_len[0].text = fixed_len[0].text[:23] + 'o' + fixed_len[0].text[24:]
 
     def strip_custom_fields(self):
         """Removes all 9xx and 09X datafields."""
