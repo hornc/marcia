@@ -277,7 +277,7 @@ class IAMarcXml(MarcXml):
         self.clear_subfield('245', 'h')
 
         # ----- 260 / 264 "Publisher details" if not present, create 260 from metadata ------
-        if self.data.xpath('m:datafield[@tag="260" or @tag="264"]', namespaces=NS) == []:
+        if self.data.xpath('m:datafield[@tag="260" or @tag="264"]/m:subfield[@class="a"]', namespaces=NS) == []:
             subfields = collections.OrderedDict()
             if self.city:
                 subfields['a'] = self.city + (' :' if self.publisher else ' ,')
