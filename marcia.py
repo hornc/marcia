@@ -315,7 +315,7 @@ class IAMarcXml(MarcXml):
 
         # ----- Strip Local or Obsolete Fields
         self.clear_controlfield('004')
-        strip_fields = ['011', '019', '029', '037', '039', '044', '049', '051', '059', '069', '079', '089']
+        strip_fields = ['011', '014', '019', '029', '037', '039', '044', '049', '051', '059', '069', '079', '089', '333', '349', '659']
         for f in strip_fields:
             self.clear_datafield(f)
 
