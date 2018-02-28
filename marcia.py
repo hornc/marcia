@@ -269,6 +269,10 @@ class IAMarcXml(MarcXml):
 
         # ----- 040 - Cataloging Source, add IA as modifying agency
         self.add_modifying_agency(self.ORG_CODE)
+        # remove invalid ETHICS_ISBD from 040$e (Description conventions)
+        for code in self.data.xpath('m:datafield[@tag="040"]/m:subfield[@code="e"]', namespaces=NS):
+            if code.text == 'ETHICS-ISBD':
+                code.getparent().remove(code)
 
         # ----- 050 - Library of Congress Call Number
         # ----- 082 - Dewey Decimal Classification Number
@@ -285,7 +289,7 @@ class IAMarcXml(MarcXml):
         self.clear_subfield('245', 'h')
 
         # ----- 260 / 264 "Publisher details" if not present, create 260 from metadata ------
-        if self.data.xpath('m:datafield[@tag="260" or @tag="264"]/m:subfield[@class="a"]', namespaces=NS) == []:
+        if self.data.xpath('m:datafield[@tag="260" or @tag="264"]/m:subfield[@code="a"]', namespaces=NS) == []:
             subfields = collections.OrderedDict()
             if self.city:
                 subfields['a'] = self.city + (' :' if self.publisher else ' ,')
