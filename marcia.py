@@ -65,6 +65,11 @@ class MarcXml(object):
             self.set_datafield('490', ind1='1', ind2=' ', subfields=data)
             # convert original 440 to 830
             statement.set('tag', '830')
+        # If there was a 440$6, we need to convert the corrensponding 880$6 to point to the new 830
+        #    see https://www.loc.gov/marc/bibliographic/ecbdcntf.html for $6 Linkage details
+        for reference in self.data.xpath('m:datafield[@tag="880"]/m:subfield[@code="6"]', namespaces=NS):
+            if '440' in reference.text:
+                reference.text = reference.text.replace('440', '830')
 
     def clear_controlfield(self, tag):
         """Completely clears all controlfields with a specific tag."""
