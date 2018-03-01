@@ -30,7 +30,7 @@ bad_unicode+="|â[AeE]"  # > acute + vowel likely to be an encoding error
 bad_unicode+="|á[AE]"   # > grave + vowel likely to be an encoding error
 bad_unicode+="|ðc"      # > ç
 bad_unicode+="|¶"       # > œ
-bad_unicode+="\(B[^a-z)]{,2}<" # unconverted Chinese MARC8 charset
+bad_unicode+="|\(B[^a-z)]{,2}<" # unconverted Chinese MARC8 charset
 
 egrep --color $bad_unicode *_marc.xml
 
