@@ -5,7 +5,7 @@
 count() { echo $#; }
 id_list() {
   # Split MARC filelist on <space> and strip extension to give bare OCAID.
-  echo $@ | tr " " "\n" | sed -n 's/_marc.xml//p'
+  echo $@ | tr " " "\n" | sed -n 's/\(_archive\)\?_marc.xml//p'
  }
 
 red="\e[31m"
@@ -14,7 +14,7 @@ clr="\e[0m"
 
 # Check Ids without MARC XML if <itemlist> provided
 if [ $1 ] && [ -e $1 ]; then
-  missing_marc=$(comm -23 <(sort $1) <(ls *_marc.xml | sed -n 's/_marc.xml//p' | sort))
+  missing_marc=$(comm -23 <(sort $1) <(ls *_marc.xml | sed -n 's/\(_archive\)\?_marc.xml//p' | sort))
   echo -e "\n$red!!! $(count $missing_marc) items did not have MARC XML.$clr"
   echo "     Writing list to 'no_marc.txt'"
   echo $missing_marc | tr " " "\n" > no_marc.txt
