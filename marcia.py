@@ -232,29 +232,32 @@ class IAMarcXml(MarcXml):
         self.set_online_resource()
 
         # Ensure Continuing dates are not applied to Monographs
-        fixed_length = self.get_controlfield('008')[0]
-        continuing_dates = fixed_length.text[6] == 'c'
-        monograph        = self.get_leader().text[7] == 'm'
-        if continuing_dates and monograph:
-            date1 = fixed_length.text[7:11]
-            date2 = fixed_length.text[11:15]
-            if date2 == '    ':
-                # 's', Single known date/probable date
-                correction = 's'
-            elif int(date2) > int(date1):
-                pub_date = self.data.xpath('m:datafield[@tag="260"]/m:subfield[@code="c"]', namespaces=NS)
-                if pub_date and '[' in pub_date[0].text:
-                    # questionable dates
-                    correction = 'q'
+
+        fixed_lengths = self.get_controlfield('008')
+        if fixed_lengths:
+            fixed_length = fixed_lengths[0]
+            continuing_dates = fixed_length.text[6] == 'c'
+            monograph        = self.get_leader().text[7] == 'm'
+            if continuing_dates and monograph:
+                date1 = fixed_length.text[7:11]
+                date2 = fixed_length.text[11:15]
+                if date2 == '    ':
+                    # 's', Single known date/probable date
+                    correction = 's'
+                elif int(date2) > int(date1):
+                    pub_date = self.data.xpath('m:datafield[@tag="260"]/m:subfield[@code="c"]', namespaces=NS)
+                    if pub_date and '[' in pub_date[0].text:
+                        # questionable dates
+                        correction = 'q'
+                    else:
+                        # no attempt
+                        correction = ' '
                 else:
-                    # no attempt
-                    correction = ' '
-            else:
-                # 't', Publication date and copyright date
-                assert date2 != '9999',  'Perhaps item is a real serial?'
-                assert int(date1) > int(date2), 'Copyright date is after publication date?'
-                correction = 't'
-            fixed_length.text = fixed_length.text[:6] + correction + fixed_length.text[7:]
+                    # 't', Publication date and copyright date
+                    assert date2 != '9999',  'Perhaps item is a real serial?'
+                    assert int(date1) > int(date2), 'Copyright date is after publication date?'
+                    correction = 't'
+                fixed_length.text = fixed_length.text[:6] + correction + fixed_length.text[7:]
 
         # ----- 010 Library of Congress Control Number
         # ----- 020 ISBN
