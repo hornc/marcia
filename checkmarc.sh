@@ -45,7 +45,7 @@ fi
 
 # Bad MARC indexes in source records:
 
-bad_index=$(egrep -l "at end of field length=40" *_marc.xml)
+bad_index=$(egrep -l "(at end of field length=40|No separator at)" *_marc.xml)
 
 if [ $(count $bad_index) -ne 0 ]; then
   echo -e "\n$red!!! $(count $bad_index) MARCs had a corrupt source index:$clr"
