@@ -1,12 +1,5 @@
 # marcia
 A collection of scripts for MARC conversion and checking for the [Internet Archive](https://github.com/internetarchive)
-
-* **marcia.py** (MARC IA)
-
-  Convert MARC XML to Internet Archive online resource MARC. Outputs raw MARC to STDOUT (similar to `yaz-marcdump`).
-  Can also output MARC XML with `-o marcxml` option.
-
-  **USAGE:** `marcia.py <MARC XML filename to convert>`
   
 * **checkmarc.sh**
   Bash script to check for obvious issues with MARC XML:
@@ -20,4 +13,11 @@ A collection of scripts for MARC conversion and checking for the [Internet Archi
   Takes a single raw MARC record as input and attempts to fix its index. Output to STDOUT.
 
   **USAGE:** `fixindex.py <binary MARC filename to fix>`
-`
+
+* **[DEPRECATED] marcia.py** (MARC IA)
+  Now deprectated. All functionality performed by this script is now incorporated into archive.org's fetchmarc endpoint, so Internet Archive online resource MARC can be downloaded directly. e.g. https://archive.org/download/adventuresoftoms00twaiiala/adventuresoftoms00twaiiala_archive_marc.xml Keeping this code here for reference / testing if needed.
+
+  Convert MARC XML to Internet Archive online resource MARC. Outputs raw MARC to STDOUT (similar to `yaz-marcdump`).
+  Can also output MARC XML with `-o marcxml` option.
+
+  **USAGE:** `marcia.py <MARC XML filename to convert>`
