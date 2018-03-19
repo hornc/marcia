@@ -34,10 +34,10 @@ A collection of scripts for MARC conversion and checking for the [Internet Archi
   **NOTE:** These are fixed _SOURCE_ MARC records and need to be uploaded
   back to archive.org to enable correct archive.org MARCs generated
   by fetchmarc.php. This can be done using the following [ia-client](https://github.com/jjjake/internetarchive) commands:
-```
-while read f;do ia upload $f ${f}_marc.xml; done < bad_unicode.txt
-while read f;do ia upload $f ${f}_meta.mrc ${f}_marc.xml; done < bad_index.txt
-```
+  ```
+  while read f;do ia upload $f ${f}_marc.xml; done < bad_unicode.txt
+  while read f;do ia upload $f ${f}_meta.mrc ${f}_marc.xml; done < bad_index.txt
+  ```
 
 * **fixindex.py**
   Takes a single raw MARC record as input and attempts to fix its index. Output to STDOUT. Used by `fixmarc.sh` above.
