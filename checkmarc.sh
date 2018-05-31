@@ -32,7 +32,12 @@ bad_unicode+="|â[AeE]"  # > acute + vowel likely to be an encoding error
 bad_unicode+="|á[AE]"   # > grave + vowel likely to be an encoding error
 bad_unicode+="|ðc"      # > ç
 bad_unicode+="|¶"       # > œ
+bad_unicode+="|Ã[«¦¢§³¡¼µ±¤ª£]" # other characters
 bad_unicode+="|\(B[^a-z)]{,2}<" # unconverted non-Latin MARC8 charsets in 880 fields
+
+# add checks for utf8 decoded as marc8 too
+bad_unicode+="℗♭||£̀Đ|Ì§|[¿♯]±|©[♭·ʹþ¡ĐƯðơ]"
+
 
 egrep --color $bad_unicode *_marc.xml
 
