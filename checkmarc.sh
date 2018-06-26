@@ -65,7 +65,9 @@ fi
 bad_source_list=$(egrep -l $bad_source *_archive_marc.xml)
 if [ $? -eq 0 ]; then
   id_list $bad_source_list > bad_source.txt
+  echo -e "\n$red!!! $(count $bad_source_list) MARC have likely corrupt binary MARC!$clr"
 fi
+
 empty_tag=$(grep -l 'tag=""' *_archive_marc.xml)
 if [ $? -eq 0 ]; then
   id_list $empty_tag > bad_tag.txt
