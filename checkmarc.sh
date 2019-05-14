@@ -34,6 +34,12 @@ bad_unicode+="|ðc"      # > ç
 bad_unicode+="|¶"       # > œ
 bad_unicode+="|\(B[^a-z)]{,2}<" # unconverted non-Latin MARC8 charsets in 880 fields
 
+# add checks for utf8 decoded as marc8 too
+bad_source="℗♭||£̀Đ|Ì§|[¿♯]±|©[♭·ʹþ¡ĐƯðơ]"
+# and utf8 decoded as Win1225
+bad_source+="|Ã[«¦¢§³¡¼µ±¤ª£¨]"
+bad_source+="|[ÅÄ]«|Ì§"     # u/i macron | combining cedilla
+
 egrep --color $bad_unicode *_marc.xml
 
 if [ $? -eq 0 ]; then
@@ -55,6 +61,17 @@ if [ $(count $bad_index) -ne 0 ]; then
   id_list $bad_index > bad_index.txt
 fi
 
+# Other issues, to handle later:
+bad_source_list=$(egrep -l $bad_source *_archive_marc.xml)
+if [ $? -eq 0 ]; then
+  id_list $bad_source_list > bad_source.txt
+  echo -e "\n$red!!! $(count $bad_source_list) MARC have likely corrupt binary MARC!$clr"
+fi
+
+empty_tag=$(grep -l 'tag=""' *_archive_marc.xml)
+if [ $? -eq 0 ]; then
+  id_list $empty_tag > bad_tag.txt
+fi
 
 # Other XML comments:
 
