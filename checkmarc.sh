@@ -83,3 +83,17 @@ if [ $(count $other_xml_comments) -ne 0 ]; then
   id_list $other_xml_comments > xml_comments.txt
 fi
 
+# Multiple volumes in one MARC record
+sed 's/_archive_marc.xml//' < <(egrep -l '([0-9X]{10,13} |"[qc]">.*)\(v(ol)?\. [0-9]' *.xml) > multi_volumes.txt
+
+# Multiple 008 fields
+grep -c 'controlfield tag="008"' *.xml | egrep -v ':[01]$' | sed 's/_archive_marc.*$//' > multi_008.txt
+
+# Move records to exlude to their own directories
+if true; then
+	mkdir bad_records
+	mkdir multi_volumes
+	for f in $(cat bad_index.txt bad_source.txt bad_unicode.txt multi_008.txt | sort | uniq); do mv ${f}_archive_marc.xml bad_records/. ;done
+	for f in $(cat multi_volumes.txt); do mv ${f}_archive_marc.xml multi_volumes/. ;done
+fi
+
