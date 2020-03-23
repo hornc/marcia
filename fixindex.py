@@ -6,9 +6,10 @@ import sys
 
 DEBUG = False
 
+
 def step_through_and_fix(index, data):
     """Check the index represents the data, and fix if not."""
-    separator = '\x1e'
+    separator = 0x1e
     calculated_offset = 0
     for i,tag in enumerate(index):
         # Set current offset to calculated offset.
@@ -23,13 +24,16 @@ def step_through_and_fix(index, data):
         calculated_offset += int(tag[1])
     return index
 
+
 def recreate_index(index):
     """Takes as input an Array of [[tag, tag_len, offset], ... ]
        returns binary index."""
     output = ""
     for t in index:
-        output += t[0] + t[1] + t[2]
+        print("========== %s" % t)
+        output += t[0].decode() + t[1] + t[2]
     return output
+
 
 def fix_index(f):
     f.seek(0)
@@ -42,7 +46,8 @@ def fix_index(f):
     index = []
     while True:
         tag = f.read(3)
-        if tag[0] == chr(0x1e):
+        print("========== %s" % tag)
+        if tag[0] == 0x1e:
             break
         tag_len = f.read(4)
         offset  = f.read(5)
@@ -51,10 +56,11 @@ def fix_index(f):
     f.seek(-3, 1)   # back to end of index, at the 0x1E byte
     data = f.read() # read rest of file (data section)
     if DEBUG:
-        print "ORIGINAL INDEX: %s" % index
+        print("ORIGINAL INDEX: %s" % index)
 
     fixed = step_through_and_fix(index, data)
     return leader + recreate_index(fixed) + data
+
 
 if __name__ == '__main__':
 

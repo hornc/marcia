@@ -173,7 +173,7 @@ class MarcXml(object):
         ind1 = kwargs.get('ind1', ' ')
         ind2 = kwargs.get('ind2', ' ')
         field = etree.Element('{%s}datafield' % MARC21_NS, {'ind1': ind1, 'ind2': ind2, 'tag': tag}, nsmap={None: MARC21_NS})
-        for code,v in kwargs.get('subfields', {}).iteritems():
+        for code,v in kwargs.get('subfields', {}).items():
             sub = etree.Element('{%s}subfield' % MARC21_NS, {'code': code})
             sub.text = v
             field.append(sub)
@@ -319,7 +319,7 @@ class IAMarcXml(MarcXml):
             try:
                 self.fix_physical_description(physical_description[0])
             except IndexError as e:
-                raise Exception, "Problem with 300 Physical Description in %s. Corrupt MARC?\n%s" % (ocaid, etree.tostring(physical_description[0]))
+                raise Exception("Problem with 300 Physical Description in %s. Corrupt MARC?\n%s" % (ocaid, etree.tostring(physical_description[0])))
 
         # ----- 440, Series Statement/Added Entry-Title, convert to 490, Series Statement + 830, Series Added Entry-Uniform Title
         # see http://www.loc.gov/marc/bibliographic/bd440.html : "CONVERSION TO CURRENT FIELDS"
@@ -422,7 +422,7 @@ class IAMarcXml(MarcXml):
     def has_corrupt_index(self):
         for c in self.comments():
             if DEBUG:
-                print "]%s[" % c.text
+                print("]%s[" % c.text)
             # Needs to catch both
             #  Separator but not at end of field length=40
             #  No separator at end of field length=40
@@ -481,7 +481,7 @@ if __name__ == '__main__':
     try:
         doc = etree.parse(filename)
     except IOError as e:
-        raise Exception, "Unable to open MARC XML: %s\n" % filename
+        raise Exception("Unable to open MARC XML: %s\n" % filename)
 
     # Look for IA metadata to populate openlibrary url
     metadata_filename = os.path.join(os.path.dirname(filename), "%s_meta.xml" % (ocaid))
@@ -491,7 +491,7 @@ if __name__ == '__main__':
         if metadata.xpath("openlibrary") != []:
             meta['old_olid'] = metadata.xpath("openlibrary")[0].text
             if DEBUG:
-                print "DEBUG old_olid: %s" % meta['old_olid']
+                print("DEBUG old_olid: %s" % meta['old_olid'])
         if metadata.xpath("openlibrary_edition") != []:
             meta['olid'] = metadata.xpath("openlibrary_edition")[0].text
         fields = ['city', 'publisher', 'date', 'volume']
@@ -500,9 +500,9 @@ if __name__ == '__main__':
                 meta[f] = metadata.xpath(f)[0].text
     except IOError as e:
         #TODO: Metadata should be optional? Use it if it is there, still produce a good MARC if not. Log a warning just in case?
-        #print "METADATA %s NOT FOUND" % metadata_filename
+        #print("METADATA %s NOT FOUND" % metadata_filename)
         pass
-        #raise Exception, "Unable to open metadata %s\n" % metadata_filename
+        #raise Exception("Unable to open metadata %s\n" % metadata_filename)
 
     root = doc.getroot()
 
@@ -518,8 +518,8 @@ if __name__ == '__main__':
         raise
 
     if DEBUG:
-        print record.get_leader()
-        print "TITLE STATEMENT: %s" % etree.tostring(record.get_datafield('245')[0])
+        print(record.get_leader())
+        print("TITLE STATEMENT: %s" % etree.tostring(record.get_datafield('245')[0]))
 
     # ---- Write output
     # Use yaz-marcdump to convert modified XML to marc
