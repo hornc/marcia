@@ -56,9 +56,7 @@ with open(fnbiblio, 'rb') as marcdata:
                             ]
                         )
                     )
-            #print(record)
             record.leader = record.leader[:9] + 'a' + record.leader[10:]
-            #record.force_utf8 = True
             writer.write(record)
 
             if DEBUG and i > m:
@@ -67,4 +65,4 @@ with open(fnbiblio, 'rb') as marcdata:
 if writer:
     print('Closing file')
     writer.close()
-             
+
