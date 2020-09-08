@@ -34,6 +34,6 @@ def test_fixindex_bad_marc():
     with open(os.path.join(DATA, bad_marc), 'rb') as f:
         fixed = fixindex.fix_index(f)
         yaz_output, yaz_error = check_yaz_output(fixed)
-        print yaz_output
+        print(yaz_output)
         assert "No separator at end of field" not in yaz_output
         assert "Separator but not at end of field" not in yaz_output
