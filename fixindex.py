@@ -2,7 +2,13 @@
 
 import sys
 
-"""Takes a single raw MARC record as input and attempts to fix its index."""
+"""
+Takes a binary MARC21 file (containing one or more records) as input and attempts to fix its index.
+If the indexes are okay, the file is returned without modification.
+
+May not work on all corrupt indexes. Tends to do well if there is a consistent off-by-one in the data.
+
+"""
 
 DEBUG = False
 
@@ -35,9 +41,11 @@ def recreate_index(index):
 
 
 def fix_index(f):
-    f.seek(0)
+    record_start = f.tell()
     leader = f.read(24)
-    length = leader[:5]
+    if not leader:  # EOF
+        return
+    length = int(leader[:5])
 
     field_len     = leader[20]
     start_pos_len = leader[21]
@@ -52,7 +60,7 @@ def fix_index(f):
         index.append([tag, tag_len, offset])
 
     f.seek(-3, 1)    # back to end of index, at the 0x1E byte
-    data = f.read()  # read rest of file (data section)
+    data = f.read(length - (f.tell() - record_start))  # read rest of record (data section)
     if DEBUG:
         print("ORIGINAL INDEX: %s" % index)
 
@@ -65,5 +73,10 @@ if __name__ == '__main__':
     filename = sys.argv[1]  # binary MARC filename to read
 
     with open(filename, 'rb') as f:
-        fixed_marc = fix_index(f)
-        sys.stdout.buffer.write(fixed_marc)
+        f.seek(0)
+        while True:
+            fixed_marc = fix_index(f)
+            if fixed_marc:
+                sys.stdout.buffer.write(fixed_marc)
+            else:
+                break
