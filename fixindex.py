@@ -35,8 +35,8 @@ def recreate_index(index):
     """Takes as input an Array of [[tag, tag_len, offset], ... ]
        returns binary index."""
     output = b''
-    for t in index:
-        output += t[0] + t[1] + t[2]
+    for tag in index:
+        output += b''.join(tag)
     return output
 
 
@@ -59,8 +59,10 @@ def fix_index(f):
         offset  = f.read(5)
         index.append([tag, tag_len, offset])
 
-    f.seek(-3, 1)    # back to end of index, at the 0x1E byte
-    data = f.read(length - (f.tell() - record_start))  # read rest of record (data section)
+    f.seek(-3, 1)  # back to end of index, at the 0x1E byte
+    base_addr = f.tell() - record_start + 1
+    leader = leader[:14] + str(base_addr).encode('utf-8') + leader[17:]
+    data = f.read(length - base_addr + 1)  # read rest of record (data section)
     if DEBUG:
         print("ORIGINAL INDEX: %s" % index)
 
