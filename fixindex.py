@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 
@@ -13,7 +13,7 @@ def step_through_and_fix(index, data):
     calculated_offset = 0
     for i,tag in enumerate(index):
         # Set current offset to calculated offset.
-        tag[2] = "%05d" % calculated_offset
+        tag[2] = ('%05d' % calculated_offset).encode('utf-8')
 
         assert data[calculated_offset] == separator
 
@@ -28,10 +28,9 @@ def step_through_and_fix(index, data):
 def recreate_index(index):
     """Takes as input an Array of [[tag, tag_len, offset], ... ]
        returns binary index."""
-    output = ""
+    output = b''
     for t in index:
-        print("========== %s" % t)
-        output += t[0].decode() + t[1] + t[2]
+        output += t[0] + t[1] + t[2]
     return output
 
 
@@ -46,15 +45,14 @@ def fix_index(f):
     index = []
     while True:
         tag = f.read(3)
-        print("========== %s" % tag)
         if tag[0] == 0x1e:
             break
         tag_len = f.read(4)
         offset  = f.read(5)
         index.append([tag, tag_len, offset])
 
-    f.seek(-3, 1)   # back to end of index, at the 0x1E byte
-    data = f.read() # read rest of file (data section)
+    f.seek(-3, 1)    # back to end of index, at the 0x1E byte
+    data = f.read()  # read rest of file (data section)
     if DEBUG:
         print("ORIGINAL INDEX: %s" % index)
 
@@ -64,8 +62,8 @@ def fix_index(f):
 
 if __name__ == '__main__':
 
-    filename = sys.argv[1] # binary MARC filename to read
+    filename = sys.argv[1]  # binary MARC filename to read
 
     with open(filename, 'rb') as f:
         fixed_marc = fix_index(f)
-        sys.stdout.write(fixed_marc)
+        sys.stdout.buffer.write(fixed_marc)
