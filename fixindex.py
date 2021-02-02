@@ -19,7 +19,7 @@ def step_through_and_fix(index, data):
 
         # If offset + len does not end on a separator, incr. len by one until it is found
         while data[calculated_offset + int(tag[1])] != separator:
-            tag[1] = "%04d" % (int(tag[1]) + 1)
+            tag[1] = ('%04d' % (int(tag[1]) + 1)).encode('utf-8')
 
         calculated_offset += int(tag[1])
     return index
