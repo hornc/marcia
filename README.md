@@ -52,6 +52,7 @@ A collection of scripts for MARC conversion and checking for the [Internet Archi
 
   **USAGE:** `marcia.py <MARC XML filename to convert>`
 
+## License
 Marcia, a collection of MARC related scripts.
 
 Copyright © 2018-2021 Charles Horn.
